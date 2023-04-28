@@ -1,9 +1,6 @@
 package com.dashboard.App.Entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,10 +22,8 @@ public class Category {
     private LocalDate date_creation;
     private LocalDate date_modification;
     private boolean deleted;
+    private LocalDate date_deleted;
 
-    public Category(long id, String nom) {
-        this.id = id;
-        this.nom = nom;
-    }
+
 
 }

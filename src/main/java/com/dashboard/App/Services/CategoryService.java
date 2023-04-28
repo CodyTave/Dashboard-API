@@ -1,9 +1,12 @@
 package com.dashboard.App.Services;
 
 import com.dashboard.App.Entities.Category;
+import com.dashboard.App.Entities.Product;
 import com.dashboard.App.Repos.CategoryRepository;
 import com.dashboard.App.Utilities;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,19 +21,29 @@ public class CategoryService {
     private CategoryRepository categoryRepository;
     private Utilities utilities;
 
-    public ResponseEntity<List<Category>> findAllCats()
+    public ResponseEntity<Page<Category>> findAllCats(Pageable pageable)
     {
-        return ResponseEntity.ok(categoryRepository.findAll());
+        Page<Category> categories = categoryRepository.findAll(pageable);
+        return ResponseEntity.ok(categories);
     }
+    public ResponseEntity<List<Category>> findAllByAlphaOrder()
+    {
+        return ResponseEntity.ok(categoryRepository.findByNameOrder());
+    }
+
+
     public ResponseEntity<Category> getCat(Long id){
         Optional<Category> category = categoryRepository.findById(id);
         return category.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
 
     }
-    public List<Category> getCatByName(String kw){
-        return categoryRepository.findByKeyword(kw);
+    public ResponseEntity<Page<Category>> getCatByName(String kw,Pageable pageable){
+        return ResponseEntity.ok(categoryRepository.findByKeyword(pageable, kw));
     }
     public ResponseEntity<Category> saveCat(Category category){
+        // if(category.getNom()== null){
+        //    return
+        //}
         String Slug = Utilities.toSlug(category.getNom()) ;
         LocalDate currentDate = Utilities.getCurrentDate();
         category.setSlug(Slug);
@@ -52,9 +65,8 @@ public class CategoryService {
         }
         category.setDeleted(CategoryEdit.isDeleted());
 
-
+        category.setDate_modification(Utilities.getCurrentDate());
         Category updatedCategory = saveCat(category).getBody();
-        updatedCategory.setDate_modification(Utilities.getCurrentDate());
 
         return ResponseEntity.ok(updatedCategory);
 
@@ -77,6 +89,8 @@ public class CategoryService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         Cat.setDeleted(true);
+        Cat.setDate_deleted(Utilities.getCurrentDate());
+
         saveCat(Cat);
         return ResponseEntity.status(HttpStatus.OK).build();
     }

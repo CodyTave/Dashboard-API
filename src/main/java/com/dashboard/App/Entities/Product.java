@@ -24,6 +24,7 @@ public class Product {
     private LocalDate date_creation;
     private LocalDate date_modification;
     private boolean deleted;
+    private LocalDate date_deleted;
 
 
     public Product(String nom, String description , boolean deleted) {
